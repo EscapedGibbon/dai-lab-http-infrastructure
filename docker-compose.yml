@@ -28,7 +28,6 @@ services:
       - "traefik.http.routers.static.rule=Host(`localhost`)"
       - "traefik.http.routers.static.entrypoints=websecure"
       - "traefik.http.routers.static.tls=true"
-      # Enabling the sticky sessions with cookies
       - "traefik.http.services.static.loadbalancer.sticky.cookie=true"
       - "traefik.http.services.static.loadbalancer.sticky.cookie.name=stickyCookie"
       
@@ -39,16 +38,17 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.express.rule=Host(`localhost`) && PathPrefix(`/api`)"
-
+      - "traefik.http.routers.express.entrypoints=websecure"
+      - "traefik.http.routers.express.tls=true"
       - "traefik.http.services.express.loadbalancer.server.port=3000"
 
-      
   managedocker:
     build: ./manageDocker
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.managedocker.rule=Host(`manage.localhost`)"
+      - "traefik.http.routers.managedocker.entrypoints=websecure"
+      - "traefik.http.routers.managedocker.tls=true"
       - "traefik.http.services.managedocker.loadbalancer.server.port=5000"
-      - "traefik.http.routers.static.entrypoints=websecure"
-      - "traefik.http.routers.static.tls=true"
     volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
