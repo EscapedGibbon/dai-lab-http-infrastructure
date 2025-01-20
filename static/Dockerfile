@@ -1,8 +1,8 @@
-# Dockerfile pour le serveur statique
-FROM php:5.6-apache
+# Dockerfile pour le serveur statique basé sur Nginx
+FROM nginx:stable-alpine
 
-# Copie des fichiers statiques dans le dossier web d'Apache
-COPY src/ /var/www/html/
+# Copie des fichiers statiques dans le dossier par défaut d'Nginx
+COPY src/ /usr/share/nginx/html/
 
-# Activation du module mod_rewrite pour Apache 
-RUN a2enmod rewrite
+# Copie du fichier de configuration Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
