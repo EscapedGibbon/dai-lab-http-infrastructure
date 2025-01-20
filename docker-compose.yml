@@ -1,21 +1,26 @@
 version: "3.9"
+
 networks:
   default:
     name: infra-network
+
 services:
   reverse-proxy:
     image: traefik:v2.9
     command:
       - --providers.file.filename=/etc/traefik/traefik.yaml
+      - --providers.docker
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      - --entrypoints.traefik.address=:8080
       - --api.dashboard=true
+      - --log.level=INFO
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+      - "80:80"       # Port HTTP
+      - "443:443"     # Port HTTPS
+      - "8080:8080"   # Tableau de bord
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik.yaml:/etc/traefik/traefik.yaml
       - ./certs:/etc/traefik/certificates
 
@@ -23,14 +28,14 @@ services:
     build: ./static
     deploy:
       replicas: 1
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.static.rule=Host(`localhost`)"
       - "traefik.http.routers.static.entrypoints=websecure"
       - "traefik.http.routers.static.tls=true"
       - "traefik.http.services.static.loadbalancer.sticky.cookie=true"
       - "traefik.http.services.static.loadbalancer.sticky.cookie.name=stickyCookie"
-      
+
   express:
     build: ./express
     ports:
